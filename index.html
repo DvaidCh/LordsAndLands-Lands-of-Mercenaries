@@ -3,7 +3,13 @@
 <head>
 	<title>LordsAndLands: Lands of Mercenaries. Card Game</title>
 	<style type="text/css">
-		body{background: grey;margin:2pt;}
+
+		html{height: 100%}
+		body{background: grey;margin:2pt;background-size: 100% 100%;user-select: none; min-height:100% 
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;}
 		.card{
 			width: 100pt;
 			height: 100pt;
@@ -24,8 +30,9 @@
 		#nxtTurnButton{height: 50pt;width: 55pt;background: red;color:wheat; border: 2pt ridge purple;font-size: 20pt;text-align: center; vertical-align: center;}
 		
 		.row{height: 2pt;width: 672pt;}
-		.player1{border:4pt groove blue;}
-		.player2{border:4pt ridge red;}
+		.player1{border:4pt groove blue;background: linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)}
+		
+		.player2{border:4pt ridge red;background: linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)}
 		.inactive{border:4pt outset gray;}
 		#shop .card{border:4pt groove gold;}
 		.canon5{background: url("canon5.png");background-size: cover;}
@@ -53,14 +60,141 @@
 		.spear2{background: url("spear2.png");background-size: cover;}
 		.spear3{background: url("spear3.png");background-size: cover;}
 		.spear5{background: url("spear5.png");background-size: cover;}
+			
 		
-		.land1{background: url("land1.png");background-size: cover;}
-		.land2{background: url("land2.png");background-size: cover;}
-		.land3{background: url("land3.png");background-size: cover;}
-		.land4{background: url("land4.png");background-size: cover;}
 		
 	</style>
 	<script type="text/javascript">
+		landnames={prename:[],prefix:[],name:[],midfix:[],postfix:[],postname:[]};
+		landnames.prename.push("villa ","dutche ", "monte ", "terra ","");
+		landnames.prefix.push("Los-","Des-","San-","Sain-","Casta-","Vila-","Monte-","Bel-","Nuo-","");
+		landnames.name.push("Patr","Madr","Mar","Ter","Sic","Flor","Fier","Rom","Ven","Sev","Sup","Neg","Bel",);
+		landnames.midfix.push("en","un","r","up","ut","s","er","et","t","an","id","aid","es","is","oid","");
+		landnames.postfix.push("en","un","up","ut","er","et","t","an","a","id","aid","e","es","is","i","o","oid","");
+		landnames.postname.push(" nuov","liber","","","","","")
+		
+		function genLandName(maxlength){
+			var name = landnames.prename[Math.floor(Math.random()*landnames.prename.length)]+landnames.prefix[Math.floor(Math.random()*landnames.prefix.length)]+landnames.name[Math.floor(Math.random()*landnames.name.length)]+landnames.midfix[Math.floor(Math.random()*landnames.midfix.length)]+landnames.postfix[Math.floor(Math.random()*landnames.postfix.length)];
+			if(Math.random()<0.5){name+=" of " + genSquadName()}else if(Math.random()<0.5)name+=" of " + genPersonalName();
+			if(typeof(maxlength)!=undefined)if(name.length>maxlength)return genLandName(maxlength);
+			return name;
+		}
+
+		personalnames={pretitle:[],title:[],prefix:[],name:[],midfix:[],postfix:[]}
+		personalnames.pretitle.push("brave ","strong ", "restless ", "wounded ", "weak ", "friendly ", "good ", "bad ", "bloodthirsty ", "lucky ", "misunderstooded ", "stooded ", "hellish ", "heaven ", "godless ", "fearless ", "black ", "white ", "bloody ", "free ","unlucky ","great ","big ","oncedead ","christian ","pagan ","greedy ","fat ","sick ", "broken ", "filthy ","pseudo","");
+		personalnames.title.push("duke ","prince ", "cavaler ", "messer ", "count ", "captain ","general ", "lord ", "freeman ","brother ","sister ","father ","mother ","")
+		personalnames.prefix.push("ce","te","gue","e","ni","ro","be","bi","ti","to","so","");
+		personalnames.name.push("patr","madr","mar","mer","sic","flor","fier","rom","ven","sev","sup","neg");
+		personalnames.midfix.push("en","un","r","up","ut","s","er","et","t","an","id","aid","es","is","oid","");
+		personalnames.postfix.push("en","un","up","ut","er","et","t","an","a","id","aid","e","es","is","i","o","oid","");
+		function genPersonalName(maxlength){
+			var name=personalnames.prefix[Math.floor(Math.random()*personalnames.prefix.length)]+personalnames.name[Math.floor(Math.random()*personalnames.name.length)]+ personalnames.midfix[Math.floor(Math.random()*personalnames.midfix.length)]+personalnames.postfix[Math.floor(Math.random()*personalnames.postfix.length)];
+			name=String.fromCharCode(name.charCodeAt(0)-32)+name.substr(1);
+			name=personalnames.pretitle[Math.floor(Math.random()*personalnames.pretitle.length)]+personalnames.title[Math.floor(Math.random()*personalnames.title.length)]+name;
+			if(Math.random()<0.5)name+=" de "+genLandName();
+			if(Math.random()<0.5)name+=" from "+genSquadName();
+			if(typeof(maxlength)!=undefined)if(name.length>maxlength)return genPersonalName(maxlength);
+			return name;
+		}
+
+		squadnames={pretitle:[],title:[],owner:[]}
+		squadnames.pretitle.push("brave ","strong ", "restless ", "wounded ", "weak ", "friendly ", "good ", "bad ", "bloodthirsty ", "lucky ", "misunderstooded ", "stooded ", "hellish ", "heaven ", "godless ", "fearless ", "black ", "white ", "bloody ", "free ","unlucky ","great ","big ","oncedead ","christian ","pagan ","greedy ","fat ","sick ", "broken ", "filthy ","");
+		squadnames.title.push("friends ","peoples ","peasants ","foes ","soldiers ","champions ", "conquerers ", "knights ", "rogues ", "robbers ", "combatants ","campaign ","army ","squad ", "adventurers ", "warriors ", "monks ","prayers ","brotherhood ","brothers ","sons ","daughters ","sisters ");
+		squadnames.owner.push("God","Heaven","Hell","Devil","Freedom","Law","Justice", "Injustice", "Church", "Temple", "Christ", "Horizon", "Sea", "Gea", "Zeus", "Odin", "Fortuna", "Winter","Summer","Fall","Spring","Music", "Undefined", "Roma", "North", "South","West","East")
+		function genSquadName(maxlength){
+			var name=squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]+squadnames.title[Math.floor(Math.random()*squadnames.title.length)]
+			if(Math.random()<0.5){
+				name+="of "+squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]
+			}else if(Math.random()<0.5)name+="of "+genPersonalName();
+			if(Math.random()<0.5)name+=" de "+genLandName();
+			if(typeof(maxlength)!=undefined)if(name.length>maxlength)return genSquadName(maxlength);
+			return name;
+		}
+
+		howword=[];how1=[];how2=[];
+		howword.push("easy ","heavy ","hard ","free ", "bloody ","lawfull ","chaotic ","dangerous ","peacefull ","doomed ","unknown ","");
+		how1.push( "succesfully ", "lawfully ","had shown their @pretitle when ","had shown their love to @owner when ","kidnapped @person just before they ")
+		how2.push("with @word casualties ", "by paying @word price ","without any honor ","by having @word adventure","now and for all","with help @wordof @squad",", dooming the @pretitle@title of @land"," and cleared the @land from @squad");
+		actions={move:[],conquer:[],kill:[],die:[],damage:[]}
+		actions.move.push("@who @how1 moved to @what, @how2","@who @how2 @how1 had finished their trip to @what","it had taken not much time for @who to reach the @what","@leader @how1 leaded his @who to @what");
+		actions.conquer.push("@leader claimed his rights on @what, with @word help of his @who","@pretitle@title of @what is now in @wordhands of @leader, thanks to @who","@who now @word judgeing the @pretitle@title of @what","attack on @land of @who finished in @word conquest, @how2")
+		actions.kill.push("@what is now @word dead @how2 by @who","@who @how1 finished the lives of @what @how2, by will of @leader")
+		actions.die.push("@who @how1 ended their lives in hands of @what @how2","most of @leader's @who @how1 deserted @how2 by seeing the @what @word power")
+		actions.damage.push("@who @how1 damaged the @what, @how2","raid of @who, @how1 leaded by @leader, ended in @word damage to @what @how2","attack of @leader with his @who @how1 had no result except @word damage to @what, @how2 ")
+		function makeElemWithTitle(Text,Title){
+			var text= document.createElement("t")
+			text.style.fontStyle="italics";
+			text.style.fontWeight="bold";
+			text.title=title;
+			text.innerHTML=Text;
+			return text;
+		}
+		function replaceTextWithElem(what,text,elem){
+			var Text=what.innerHTML.split(text);
+			what.innerHTML="";
+			for (var i = 0; i <Text.length-1; i++) {
+				what.appendChild(Text[i]);
+				what.appendChild(elem.cloneNode());
+			}
+			what.appendChild(Text[Text.length]);
+		}
+		function genJournalLetter(who,leader,what,action,action2,what2){
+			
+				var line =document.createElement("t");
+				var str1 = action[Math.floor(Math.random()*action.length)];
+				str1.replace("@word",howword[Math.floor(Math.random()*howword.length)]);
+				str1.replace("@how1",how1[Math.floor(Math.random()*how1.length)]);
+				str1.replace("@how2",how2[Math.floor(Math.random()*how2.length)]);
+				str1.replace("@pretitle",squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]);
+				str1.replace("@title",squadnames.title[Math.floor(Math.random()*squadnames.title.length)]);
+				str1.replace("@squad",genSquadName());
+				str1.replace("@land",genLandName());
+				str1.replace("@owner",squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]);
+				str1.replace("@person",genPersonalName());
+				line.innerHTML=str1;
+				var Who = makeElemWithTitle(who.bio.big().bold().italics(),who.name+" "+who.power);
+				var Leader=makeElemWithTitle(who.leader.big().bold().italics(),who.parentElement.owner);
+				var What=makeElemWithTitle(what.bio.big().bold().italics(),what.name+" "+what.power);
+				
+				if(what.owner!=undefined){
+					What.title+="\n"+what.owner;
+				}else What.title+="\n"+what.parentElement.owner;
+				if(what2!=undefined){var What2=makeElemWithTitle(what2.bio.big().bold().italics(),what2.name+" "+what2.power);
+				
+				if(what2.owner!=undefined){
+					What2.title+="\n"+what2.owner;
+				}else What2.title+="\n"+what2.parentElement.owner;}
+
+				
+				replaceTextWithElem(line,"@who",Who);
+				replaceTextWithElem(line,"@what",What);
+				replaceTextWithElem(line,"@leader",Leader);
+
+				if(action2!=undefined){
+					var line2=document.createElement("t");
+					var str2= action2[Math.floor(Math.random()*action2.length)];
+					str2.replace("@word",howword[Math.floor(Math.random()*howword.length)]);
+					str2.replace("@how1",how1[Math.floor(Math.random()*how1.length)]);
+					str2.replace("@how2",how2[Math.floor(Math.random()*how2.length)]);
+					str2.replace("@pretitle",squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]);
+					str2.replace("@title",squadnames.title[Math.floor(Math.random()*squadnames.title.length)]);
+					str2.replace("@squad",genSquadName());
+					str2.replace("@land",genLandName());
+					str2.replace("@owner",squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]);
+					str2.replace("@person",genPersonalName());
+					line2.innerHTML=str2;
+					if(What2==undefined)What2=What;
+					replaceTextWithElem(line2,"@who",Who);
+					replaceTextWithElem(line2,"@what",What2);
+					replaceTextWithElem(line2,"@leader",Leader);
+
+				}
+				var returnline=document.createElement("t");
+				returnline.appendChild(line);
+				if(Math.random()<0.5){returnline.appendChild(" and ")}else returnline.appendChild(" or ")
+				return ;
+		}
+
 		noMovesTurns=0;
 		protectionModifier=3;
 		healModifier=0.5;
@@ -69,11 +203,11 @@
 			var parent = target.parentElement;
 			var targett=target.parentElement.lastElementChild;
 			if(targett.power*protectionModifier<caller.power||targett.tempPower*protectionModifier<caller.power || targett.undefending==true) {console.log("attack!");currentplayer.score+=targett.power;nextTurnCoins+=targett.power;
-				if(targett.type=="castle"&&parent.firstElementChild==targett){conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
+				if(targett.type=="castle"&&parent.firstElementChild==targett){if(!confirm("conquer castle?"))return "mek";conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
 				targett.remove();
 				if(parent.lastElementChild==null){parent.appendChild(caller);conquer(currentplayer, parent);}}
 				else{
-				if(targett.power*protectionModifier>caller.power){parent.owner.score+=caller.power*2;parent.owner.coins+=caller.power*2;
+				if(targett.power*protectionModifier>caller.power){if(!confirm("suicidal attack!"))return "mek";parent.owner.score+=caller.power*2;parent.owner.coins+=caller.power*2;
 					caller.remove();}
 					else{currentplayer.score+=targett.power;nextTurnCoins+=targett.power;parent.owner.score+=caller.power*2;parent.owner.coins+=caller.power*2;targett.remove(); caller.remove()}
 
@@ -84,11 +218,12 @@
 			var parent = target.parentElement;
 			var targett=target.parentElement.lastElementChild;
 			if(targett.power*protectionModifier<caller.power||targett.tempPower*protectionModifier<caller.power || targett.undefending==true) {console.log("attack!");currentplayer.score+=targett.power;nextTurnCoins+=targett.power;
-				if(targett.type=="castle"&&parent.firstElementChild==targett){conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
+				if(targett.type=="castle"&&parent.firstElementChild==targett){if(!confirm("conquer castle?"))return "mek";conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
 				targett.remove();}
 				
 				else{
 				if(targett.power*protectionModifier>caller.power){
+					if(!confirm("suicidal attack!"))return "mek";
 					parent.owner.score+=caller.power*2;parent.owner.coins+=caller.power*2;
 					targett.tempPower-=caller.power/protectionModifier;
 					caller.remove();}
@@ -105,7 +240,7 @@
 				if(targett.type=="castle"||targett.type=="lance"){currProtMod=protectionModifier}else if(protectionModifier>=1){currProtMod=1};
 			if(targett.power*currProtMod<caller.power||targett.tempPower*currProtMod<caller.power || targett.undefending==true) {
 				console.log("attack!");currentplayer.score+=targett.power;nextTurnCoins+=targett.power;
-				if(targett.type=="castle"&&parent.firstElementChild==targett){conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
+				if(targett.type=="castle"&&parent.firstElementChild==targett){if(!confirm("conquer castle?"))return "mek";conquer(currentplayer, parent);caller.remove();targett.classList.add("inactive");return;}//захват замка
 				targett.remove();targett=parent.lastElementChild;
 				if(parent.lastElementChild==null){break;}}
 				else{
@@ -141,20 +276,22 @@
 
 			}}
 		function doNothing(){console.log("nthing");PlayerPanelUpdate();return null;};
-		function conquer(byWhom,what){what.className=what.type+" "+what.type+what.power+' '+byWhom.name;what.owner=byWhom;PlayerPanelUpdate();}
+		function conquer(byWhom,what){what.className=what.type+" "+what.type+what.power+' '+byWhom.name;what.owner=byWhom;if(byWhom==player1){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)"};if(byWhom==player2){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)"};PlayerPanelUpdate();}
 		function cardDone(){;currentcard.classList.add("inactive"); currentcard=null;PlayerPanelUpdate();}
 		function createCard(type,power){
 			var crd=document.createElement("div");
+			//if(type=="land")crd=document.createElement("img");
 			crd.power=power;
 			crd.type=type;
+
 			if(type!="land"){crd.tempPower=power;crd.classList.add("card");
 			
 			switch(type){
-				case "spear": crd.do=spearAttack; break;
-				case "gun": crd.do=gunAttack;break;
-				case "lance": crd.do=lanceAttack;break;
-				case "canon": crd.do=canonAttack;crd.undefending=true; break;
-				case "castle": crd.do=castleAttack;break;
+				case "spear": crd.do=spearAttack; crd.info="kills card which temppower less than 1/3 of spear power, dies and kills if equal. if card was last on its land -- moves to and conquers land of a card"; break;
+				case "gun": crd.do=gunAttack; crd.info="kills card which temppower less than 1/3 of gun power, dies and kills if equal. deals 1/3 of gun power as damage to a card ";break;
+				case "lance": crd.do=lanceAttack;crd.info="kills cards in a land one by one(from last to first) that is not a lance or castle which temppower less than lance power, dies and kills if equal. kills lances which temppower is less than 1/3 of this lance power";break;
+				case "canon": crd.do=canonAttack;crd.info="kills card which temppower less than or equal to 1/3 of canon power. deals  canon power as damage to a card. get killed by any attack ";crd.undefending=true; break;
+				case "castle": crd.do=castleAttack;crd.info="kills card which temppower less than or equal to 1/6 of castle power. deals 1/2 of castle power as damage to a card. when it should be killed and its the last card on a land -- instead gets conquered(except by attacks of other castles and canons). insted of moving and conquering the empty land -- just conquering. cant move";break;
 			}
 			}else{crd.classList.add("land");crd.owner=nomads;}
 			function checkDistance(first,second){
@@ -174,7 +311,7 @@
 						console.log("set current:",this);
 						currentcard = this;updateTitles(); return;};  
 					if(currentcard!=undefined&&currentcard!=null)if(!this.parentElement.className.includes(currentplayer.name)&&currentcard!=null&&currentcard.parentElement.id!=shop&&checkDistance(currentcard,this))
-					{currentcard.do(currentcard,this);cardDone();updateTitles();return;};//атакует карту
+					{if(currentcard.do(currentcard,this)=="mek")return;cardDone();updateTitles();return;};//атакует карту
 					throw "something gone wrong";
 				}
 				if((this.type=="land")&&(currentcard!=null) ){ //землю картой
@@ -208,6 +345,10 @@
 			
 			}
 			crd.classList.add(type+power);
+
+			crd.src=type+power+".png";
+			if(type=="land"){crd.style.background="url('"+type+power+".png')";crd.style.backgroundSize="cover"}
+
 			return crd;
 		};
 		function PlayerPanelUpdate(){
@@ -216,11 +357,13 @@
 			playerPanel.playerScore.innerHTML=currentplayer.score;
 			playerPanel.nextTurnCoins.innerHTML=nextTurnCoins;
 			if(currentplayer==player1){
+				document.documentElement.style.background="linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
 				playerPanel.style.background="blue";
 				nxtTurnButton.style.background="red"
 				playerPanel.playerName.style.color="blue";playerPanel.playerScore.style.color="blue";playerPanel.playerCoins.style.color="blue";playerPanel.nextTurnCoins.style.color="blue";
 			}
 			if(currentplayer==player2){
+				document.documentElement.style.background="linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
 				playerPanel.style.background="red";
 				nxtTurnButton.style.background="blue"
 				playerPanel.playerName.style.color="red";playerPanel.playerScore.style.color="red";playerPanel.playerCoins.style.color="red";playerPanel.nextTurnCoins.style.color="red";
@@ -253,9 +396,10 @@
 			if(Score1>Score2){return "player1"};
 			if(Score1<Score2){return"player2"};
 			return "draw";
+
 		}
 		function nextTurn(){
-			if(noMovesTurns>=5){alert(WinnerIs());}
+			if(noMovesTurns>=5){alert(WinnerIs());document.location.reload()}
 			noMovesTurns++;
 			countOf1=0;
 			countOf2=0;
@@ -269,7 +413,7 @@
 				for(var t=0 ;t<lands[i][j].children.length;t++){
 					var crd = lands[i][j].children[t];
 					if(crd.className.includes("inactive")){crd.classList.remove("inactive");}
-					crd.title=crd.type+" "+crd.power+"\n"+lands[i][j].title;
+					crd.title=crd.type+" "+crd.power+"\n"+crd.info+"\n"+lands[i][j].title;
 					crd.tempPower+=crd.power*healModifier;
 					if(crd.tempPower>crd.power)crd.tempPower=crd.power;
 
@@ -277,9 +421,9 @@
 				
 			}
 			}
-			if(countOf1==0)alert("player2 is winner");
+			if(countOf1==0){alert("player2 is winner");document.location.reload()};
 
-			if(countOf2==0)alert("player1 is winner");
+			if(countOf2==0){alert("player1 is winner");document.location.reload()}
 			currentplayer.coins+=nextTurnCoins;
 			nextTurnCoins=0;
 			if(currentplayer==player1){currentplayer=player2}else{currentplayer=player1};
@@ -295,7 +439,7 @@
 				for(var t=0 ;t<lands[i][j].children.length;t++){
 					var crd = lands[i][j].children[t];
 					
-					crd.title=crd.type+" "+crd.tempPower+"/"+crd.power+"\n"+lands[i][j].title;
+					crd.title=crd.type+" "+crd.tempPower+"/"+crd.power+"\n"+crd.info+"\n"+lands[i][j].title;
 					
 
 				}
