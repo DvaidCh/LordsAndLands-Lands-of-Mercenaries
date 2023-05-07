@@ -4,12 +4,12 @@
 	<title>LordsAndLands: Lands of Mercenaries. Card Game</title>
 	<style type="text/css">
 
-		html{height: 100%}
-		body{background: grey;margin:2pt;background-size: 100% 100%;user-select: none; min-height:100% 
+		html{height: 100%;background-attachment: fixed;}
+		body{margin:2pt;background-size: 100% 100%;user-select: none; min-height:100% 
         -moz-user-select: none;
         -khtml-user-select: none;
         -webkit-user-select: none;
-        -o-user-select: none;}
+        -o-user-select: none;background-attachment: fixed;}
 		.card{
 			width: 100pt;
 			height: 100pt;
@@ -23,11 +23,11 @@
 			border: 4pt double grey;
 
 		}
-		#shop{height: 324pt;width:108pt; border:2pt  gold groove;background: linear-gradient(0.35turn,gold,white 50%,gold 56%,gold 90%,silver 99%,white 100%)}
+		#shop{width:450pt; border:2pt  gold groove;background: linear-gradient(0.35turn,gold,white 50%,gold 56%,gold 90%,silver 99%,white 100%);}
 		#lands{height: 672pt;width:672pt;float:left;background: grey}
-		#playerPanel{margin-left:10pt;float:left;color:wheat;font-weight: bold;font-size: 15pt;}
+		#playerPanel{float:left;color:wheat;font-weight: bold;font-size: 15pt;}
 		.outp{display: inline-block;background: wheat;font-size: 20pt;}
-		#nxtTurnButton{height: 50pt;width: 55pt;background: red;color:wheat; border: 2pt ridge purple;font-size: 20pt;text-align: center; vertical-align: center;}
+		#nxtTurnButton{float: right;height: 50pt;width: 55pt;background: red;color:wheat; border: 2pt ridge purple;font-size: 20pt;text-align: center; vertical-align: center;}
 		
 		.row{height: 2pt;width: 672pt;}
 		.player1{border:4pt groove blue;background: linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)}
@@ -66,7 +66,7 @@
 	</style>
 	<script type="text/javascript">
 		landnames={prename:[],prefix:[],name:[],midfix:[],postfix:[],postname:[]};
-		landnames.prename.push("villa ","dutche ", "monte ", "terra ","");
+		landnames.prename.push("villa ","duchy ", "monte ", "terra ","");
 		landnames.prefix.push("Los-","Des-","San-","Sain-","Casta-","Vila-","Monte-","Bel-","Nuo-","");
 		landnames.name.push("Patr","Madr","Mar","Ter","Sic","Flor","Fier","Rom","Ven","Sev","Sup","Neg","Bel",);
 		landnames.midfix.push("en","un","r","up","ut","s","er","et","t","an","id","aid","es","is","oid","");
@@ -81,7 +81,7 @@
 		}
 
 		personalnames={pretitle:[],title:[],prefix:[],name:[],midfix:[],postfix:[]}
-		personalnames.pretitle.push("brave ","strong ", "restless ", "wounded ", "weak ", "friendly ", "good ", "bad ", "bloodthirsty ", "lucky ", "misunderstooded ", "stooded ", "hellish ", "heaven ", "godless ", "fearless ", "black ", "white ", "bloody ", "free ","unlucky ","great ","big ","oncedead ","christian ","pagan ","greedy ","fat ","sick ", "broken ", "filthy ","pseudo","");
+		personalnames.pretitle.push("brave ","strong ", "restless ", "wounded ", "weak ", "friendly ", "good ", "bad ", "bloodthirsty ", "lucky ", "misunderstooded ", "studded ", "hellish ", "heaven ", "godless ", "fearless ", "black ", "white ", "bloody ", "free ","unlucky ","great ","big ","oncedead ","christian ","pagan ","greedy ","fat ","sick ", "broken ", "filthy ","pseudo","");
 		personalnames.title.push("duke ","prince ", "cavaler ", "messer ", "count ", "captain ","general ", "lord ", "freeman ","brother ","sister ","father ","mother ","")
 		personalnames.prefix.push("ce","te","gue","e","ni","ro","be","bi","ti","to","so","");
 		personalnames.name.push("patr","madr","mar","mer","sic","flor","fier","rom","ven","sev","sup","neg");
@@ -279,13 +279,15 @@
 		function conquer(byWhom,what){what.className=what.type+" "+what.type+what.power+' '+byWhom.name;what.owner=byWhom;if(byWhom==player1){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)"};if(byWhom==player2){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)"};PlayerPanelUpdate();}
 		function cardDone(){;currentcard.classList.add("inactive"); currentcard=null;PlayerPanelUpdate();}
 		function createCard(type,power){
-			var crd=document.createElement("div");
+			var crd={};
+			if(type=="land"){crd=document.createElement("div")}else{crd= document.createElement("img")};
 			//if(type=="land")crd=document.createElement("img");
 			crd.power=power;
 			crd.type=type;
-
-			if(type!="land"){crd.tempPower=power;crd.classList.add("card");
 			
+			if(type!="land"){
+			crd.tempPower=power;crd.classList.add("card");
+			crd.oncontextmenu=function(){currCardInfo(crd)};
 			switch(type){
 				case "spear": crd.do=spearAttack; crd.info="kills card which temppower less than 1/3 of spear power, dies and kills if equal. if card was last on its land -- moves to and conquers land of a card"; break;
 				case "gun": crd.do=gunAttack; crd.info="kills card which temppower less than 1/3 of gun power, dies and kills if equal. deals 1/3 of gun power as damage to a card ";break;
@@ -301,6 +303,16 @@
 				console.log("distance:",Math.abs(frst.x-scnd.x)+Math.abs(frst.y-scnd.y))
 				return Math.abs(frst.x-scnd.x)+Math.abs(frst.y-scnd.y)<=1;
 			}
+			function currCardInfo(card){
+				document.getElementById("cardName").innerHTML=card.type+" "+card.power;
+				document.getElementById("cardInfo").innerHTML=card.info;
+				document.getElementById("cardHP").innerHTML=card.tempPower+"/"+card.power;
+				if(typeof(card)=="undefined"){
+					document.getElementById("cardName").innerHTML="";
+				document.getElementById("cardInfo").innerHTML="";
+				document.getElementById("cardHP").innerHTML="";
+				}
+			}
 			crd.onclick=function(){
 				event.cancelBubble=true;
 				noMovesTurns=0;
@@ -309,7 +321,7 @@
 
 					if((this.parentElement.className.includes(currentplayer.name)&&!this.className.includes("inactive")) || (this.parentElement.id=="shop"&&currentplayer.coins>=this.power)){//делает карту текущей 
 						console.log("set current:",this);
-						currentcard = this;updateTitles(); return;};  
+						currentcard = this;updateTitles(); currCardInfo(currentcard); return;};  
 					if(currentcard!=undefined&&currentcard!=null)if(!this.parentElement.className.includes(currentplayer.name)&&currentcard!=null&&currentcard.parentElement.id!=shop&&checkDistance(currentcard,this))
 					{if(currentcard.do(currentcard,this)=="mek")return;cardDone();updateTitles();return;};//атакует карту
 					throw "something gone wrong";
@@ -344,7 +356,7 @@
 				}
 			
 			}
-			crd.classList.add(type+power);
+			//crd.classList.add(type+power);
 
 			crd.src=type+power+".png";
 			if(type=="land"){crd.style.background="url('"+type+power+".png')";crd.style.backgroundSize="cover"}
@@ -352,6 +364,7 @@
 			return crd;
 		};
 		function PlayerPanelUpdate(){
+			//if(typeof(currentcard)!="undefined")currCardInfo(currentcard);
 			playerPanel.playerName.innerHTML=currentplayer.name;
 			playerPanel.playerCoins.innerHTML=currentplayer.coins;
 			playerPanel.playerScore.innerHTML=currentplayer.score;
@@ -398,6 +411,19 @@
 			return "draw";
 
 		}
+		function updateHPall(){
+			for(var i=0;i++;i<lands.width){
+				for(var j=0;j++;j<lands.height){
+					for(var t=0 ;t<lands[i][j].children.length;t++){
+						var crd = lands[i][j].children[t];
+						updateHP(crd);
+					}
+				}
+			}
+		}
+		function updateHP(card){
+			card.style.background="linear-gradient(0deg,black 0%, #0008 "+(100 - (card.tempPower/card.power)*100)+"%, #0000 "+(100 - (card.tempPower/card.power)*100+1)+"% )";
+		}
 		function nextTurn(){
 			if(noMovesTurns>=5){alert(WinnerIs());document.location.reload()}
 			noMovesTurns++;
@@ -440,7 +466,7 @@
 					var crd = lands[i][j].children[t];
 					
 					crd.title=crd.type+" "+crd.tempPower+"/"+crd.power+"\n"+crd.info+"\n"+lands[i][j].title;
-					
+					updateHP(crd);
 
 				}
 				
@@ -502,7 +528,14 @@
 		<br/>
 		+Coins:<div id="nextTurnCoins" class="outp"></div>
 	</div>
-</div>	
+</div>
+<br/>
+<div id="currCardInfo" style="background: linear-gradient(135deg, white 0%,yellow 10%, lightyellow 15%, white 50%, lightyellow 100%); width: 200pt;display: inline-block;">
+	
+	<div id="cardName" style="width:200pt; font-size: 35pt"></div>
+	<div id="cardHP" style="width:200pt; font-size: 35pt"></div>
+	<div id="cardInfo" style="width:200pt; font-size: 18pt"></div>
+</div>
 <script type="text/javascript">
  shop=document.getElementById("shop");
  shop.owner="shop";
