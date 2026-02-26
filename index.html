@@ -2,121 +2,299 @@
 <html>
 <head>
 	<title>LordsAndLands: Lands of Mercenaries. Card Game</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style type="text/css">
-		html{height: 100%; background-attachment: fixed;}
-		body{
-			margin:2pt; background-size: 100% 100%; user-select: none; min-height:100%;
-			-moz-user-select: none;
-			-khtml-user-select: none;
+		html { height: 100%; background-attachment: fixed; box-sizing: border-box; }
+		*, *:before, *:after { box-sizing: inherit; }
+
+		body {
+			margin: 0; padding: 10px;
+			min-height: 100vh;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+			background-size: cover;
+			background-attachment: fixed;
+			font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+			user-select: none;
 			-webkit-user-select: none;
-			-o-user-select: none; background-attachment: fixed;
 		}
-		.card{
-			width: 100pt;
-			height: 100pt;
-			float:left;
-			border: 4pt inset green;
+
+		/* Game Board - Adaptive CSS Grid */
+		#lands {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			grid-template-rows: repeat(3, 1fr);
+			gap: 6px;
+			background: grey;
+			padding: 6px;
+			flex: 1 1 450px; /* Adapts to available space */
+			max-width: 800px;
+			aspect-ratio: 1; /* Keeps the board perfectly square */
+			box-shadow: 0 0 15px rgba(0,0,0,0.7);
+			border-radius: 5px;
 		}
-		.land{
-			width: 216pt;
-			height: 216pt;
-			float: left;
-			border: 4pt double grey;
+
+		.land {
+			border: 4px double #444;
+			background-size: cover, cover; /* Covers both the image and the gradient layers */
+			background-position: center;
+			/* Strict 2x2 grid so cards take up exactly ~1/4 of the land each */
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			grid-template-rows: repeat(2, 1fr);
+			gap: 4px;
+			padding: 4px;
+			overflow: hidden;
+			position: relative;
+			transition: transform 0.1s;
 		}
-		#shop{width:450pt; border:2pt gold groove; background: linear-gradient(0.35turn,gold,white 50%,gold 56%,gold 90%,silver 99%,white 100%);}
-		#lands{height: 672pt; width:672pt; float:left; background: grey}
-		#playerPanel{float:left; color:wheat; font-weight: bold; font-size: 15pt;}
-		.outp{display: inline-block; background: wheat; font-size: 20pt;}
-		#nxtTurnButton{float: right; height: 50pt; width: 55pt; background: red; color:wheat; border: 2pt ridge purple; font-size: 20pt; text-align: center; cursor: pointer;}
-		
-		.row{height: 2pt; width: 672pt;}
-		.player1{border:4pt groove blue; background: linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)}
-		.player2{border:4pt ridge red; background: linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)}
-		.inactive{border:4pt outset gray;}
-		#shop .card{border:4pt groove gold;}
 
-		/* Remote GitHub Assets Mapping */
-		.canon5{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/canon5.png");background-size: cover;}
-		.canon10{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/canon10.png");background-size: cover;}
-		.canon15{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/canon15.png");background-size: cover;}
-		.canon25{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/canon25.png");background-size: cover;}
+		.card {
+			width: 100%;
+			height: 100%;
+			border: 3px inset green;
+			cursor: pointer;
+			background-size: cover;
+			background-position: center;
+			transition: filter 0.2s;
+		}
+		.card:hover { filter: brightness(1.2); }
 
-		.castle10{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/castle10.png");background-size: cover;}
-		.castle20{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/castle20.png");background-size: cover;}
-		.castle30{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/castle30.png");background-size: cover;}
+		/* Right Panels Container */
+		#rightPanel {
+			flex: 1 1 300px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			max-width: 500px;
+		}
 
-		.gun1{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/gun1.png");background-size: cover;}
-		.gun2{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/gun2.png");background-size: cover;}
-		.gun3{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/gun3.png");background-size: cover;}
-		.gun5{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/gun5.png");background-size: cover;}
+		#shop {
+			border: 3px gold groove;
+			background: linear-gradient(0.35turn,gold,white 50%,gold 56%,gold 90%,silver 99%,white 100%);
+			padding: 8px;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			min-height: 100px;
+			border-radius: 5px;
+		}
 
-		.lance1{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/lance1.png");background-size: cover;}
-		.lance2{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/lance2.png");background-size: cover;}
-		.lance3{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/lance3.png");background-size: cover;}
-		.lance5{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/lance5.png");background-size: cover;}
+		#shop .card {
+			width: 65px; /* Fixed size in shop to keep UI clean */
+			height: 65px;
+			border: 3px groove gold;
+		}
 
-		.spear1{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/spear1.png");background-size: cover;}
-		.spear2{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/spear2.png");background-size: cover;}
-		.spear3{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/spear3.png");background-size: cover;}
-		.spear5{background: url("https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/spear5.png");background-size: cover;}
+		#playerPanel {
+			padding: 10px;
+			border-radius: 5px;
+			color: wheat;
+			font-weight: bold;
+			font-size: clamp(12pt, 1.5vw, 16pt);
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+		}
 
-		/* Chronicles Styling */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 8px 15px;
+			align-items: center;
+		}
+
+		.outp {
+			display: inline-block;
+			background: wheat;
+			padding: 2px 8px;
+			border-radius: 3px;
+			font-size: 1.2em;
+			text-align: right;
+		}
+
+		#nxtTurnButton {
+			align-self: stretch;
+			background: red;
+			color: wheat;
+			border: 3px ridge purple;
+			font-size: 1.5em;
+			text-align: center;
+			padding: 10px;
+			cursor: pointer;
+			border-radius: 5px;
+			text-transform: uppercase;
+			transition: transform 0.1s, filter 0.2s;
+		}
+		#nxtTurnButton:active { transform: scale(0.98); }
+		#nxtTurnButton:hover { filter: brightness(1.1); }
+
+		/* Info Panel */
+		#currCardInfo {
+			background: linear-gradient(135deg, white 0%, yellow 10%, lightyellow 15%, white 50%, lightyellow 100%);
+			padding: 15px;
+			border-radius: 5px;
+			border: 3px solid gold;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+		}
+
+		#cardName { font-size: clamp(16pt, 2vw, 22pt); font-weight: bold; border-bottom: 2px solid gold; padding-bottom: 5px; line-height: 1.2;}
+		#cardHP { font-size: clamp(14pt, 1.8vw, 18pt); color: red; font-weight: bold; }
+		#cardInfo { font-size: clamp(11pt, 1.2vw, 14pt); font-style: italic; color: #333;}
+
+		/* Chronicles Panel */
+		#chroniclesWrapper {
+			flex: 1 1 350px;
+			background: #fdf5e6;
+			border: 5px double #8b4513;
+			border-radius: 5px;
+			display: flex;
+			flex-direction: column;
+			padding: 10px;
+			box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+			height: 90vh; /* Adapts vertically */
+			max-height: 800px;
+		}
+
+		#chroniclesWrapper h2 {
+			text-align: center; margin: 0 0 10px 0; color: #5c3a21;
+			border-bottom: 2px solid #8b4513; padding-bottom: 5px;
+			font-size: 1.5em;
+		}
+
+		#chronicles {
+			flex: 1;
+			overflow-y: auto;
+			padding-right: 10px;
+		}
+
 		.chronicle-entry {
-			margin-bottom: 8pt;
-			padding-bottom: 8pt;
-			border-bottom: 1px dashed #d2b48c;
-			font-size: 13pt;
-			line-height: 1.3;
-			color: #3b2b18;
+			margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #d2b48c;
+			font-size: clamp(11pt, 1.2vw, 13pt); line-height: 1.35; color: #3b2b18;
 		}
-		.chronicle-entry i { color: #8b0000; font-weight: bold; }
 		.chronicle-entry b { color: #000080; font-weight: bold; }
+		.chronicle-entry i { color: #8b0000; font-weight: bold; font-style: normal; }
+		.chronicle-entry .leader { color: #4b0082; font-weight: bold; text-decoration: underline; }
+
+		/* Dynamics States */
+		.inactive { border: 3px outset gray; filter: grayscale(50%); }
+
 	</style>
 	<script type="text/javascript">
+		// Helper to format epic names naturally
+		function toTitleCase(str) {
+			return str.replace(/\w\S*/g, function(txt) {
+				let lower = txt.toLowerCase();
+				if (['of', 'from', 'de', 'the', 'and'].includes(lower)) return lower;
+				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+			}).replace(/\s+/g, ' ').trim();
+		}
+
+		// EPIC NAME GENERATORS (With recursive depth!)
 		landnames={prename:[],prefix:[],name:[],midfix:[],postfix:[],postname:[]};
 		landnames.prename.push("Villa ","Duchy ", "Monte ", "Terra ","");
 		landnames.prefix.push("Los-","Des-","San-","Sain-","Casta-","Vila-","Monte-","Bel-","Nuo-","");
 		landnames.name.push("Patr","Madr","Mar","Ter","Sic","Flor","Fier","Rom","Ven","Sev","Sup","Neg","Bel");
 		landnames.midfix.push("en","un","r","up","ut","s","er","et","t","an","id","aid","es","is","oid","");
 		landnames.postfix.push("en","un","up","ut","er","et","t","an","a","id","aid","e","es","is","i","o","oid","");
-		landnames.postname.push(" nuov"," liber","","","","","");
 		
-		function genLandName(){
+		function genLandName(depth = 0){
 			var name = landnames.prename[Math.floor(Math.random()*landnames.prename.length)]+landnames.prefix[Math.floor(Math.random()*landnames.prefix.length)]+landnames.name[Math.floor(Math.random()*landnames.name.length)]+landnames.midfix[Math.floor(Math.random()*landnames.midfix.length)]+landnames.postfix[Math.floor(Math.random()*landnames.postfix.length)];
-			if(Math.random()<0.2){name+=" of " + genSquadName()}else if(Math.random()<0.2)name+=" of " + genPersonalName();
-			return name.trim();
+			
+			if (depth < 2) {
+				if(Math.random() < 0.3) name += " of " + genSquadName(depth + 1);
+				else if(Math.random() < 0.3) name += " of " + genPersonalName(depth + 1);
+			}
+			return toTitleCase(name);
 		}
 
 		personalnames={pretitle:[],title:[],prefix:[],name:[],midfix:[],postfix:[]}
-		personalnames.pretitle.push("Brave ","Strong ", "Restless ", "Wounded ", "Weak ", "Friendly ", "Good ", "Bad ", "Bloodthirsty ", "Lucky ", "Misunderstood ", "Hellish ", "Heavenly ", "Godless ", "Fearless ", "Black ", "White ", "Bloody ", "Free ","Unlucky ","Great ","Big ","Once-dead ","Christian ","Pagan ","Greedy ","Fat ","Sick ", "Broken ", "Filthy ","Pseudo-","");
-		personalnames.title.push("Duke ","Prince ", "Cavalier ", "Messer ", "Count ", "Captain ","General ", "Lord ", "Freeman ","Brother ","Sister ","Father ","Mother ","")
+		personalnames.pretitle.push("brave ","strong ", "restless ", "wounded ", "weak ", "friendly ", "good ", "bad ", "bloodthirsty ", "lucky ", "misunderstood ", "hellish ", "heavenly ", "godless ", "fearless ", "black ", "white ", "bloody ", "free ","unlucky ","great ","big ","once-dead ","christian ","pagan ","greedy ","fat ","sick ", "broken ", "filthy ","pseudo-","");
+		personalnames.title.push("duke ","prince ", "cavalier ", "messer ", "count ", "captain ","general ", "lord ", "freeman ","brother ","sister ","father ","mother ","")
 		personalnames.prefix.push("ce","te","gue","e","ni","ro","be","bi","ti","to","so","");
 		personalnames.name.push("patr","madr","mar","mer","sic","flor","fier","rom","ven","sev","sup","neg");
 		personalnames.midfix.push("en","un","r","up","ut","s","er","et","t","an","id","aid","es","is","oid","");
 		personalnames.postfix.push("en","un","up","ut","er","et","t","an","a","id","aid","e","es","is","i","o","oid","");
-		function genPersonalName(){
-			var name=personalnames.prefix[Math.floor(Math.random()*personalnames.prefix.length)]+personalnames.name[Math.floor(Math.random()*personalnames.name.length)]+ personalnames.midfix[Math.floor(Math.random()*personalnames.midfix.length)]+personalnames.postfix[Math.floor(Math.random()*personalnames.postfix.length)];
-			name=name.charAt(0).toUpperCase() + name.substr(1);
-			name=personalnames.pretitle[Math.floor(Math.random()*personalnames.pretitle.length)]+personalnames.title[Math.floor(Math.random()*personalnames.title.length)]+name;
-			return name.trim();
+		
+		function genPersonalName(depth = 0){
+			var name = personalnames.prefix[Math.floor(Math.random()*personalnames.prefix.length)]+personalnames.name[Math.floor(Math.random()*personalnames.name.length)]+ personalnames.midfix[Math.floor(Math.random()*personalnames.midfix.length)]+personalnames.postfix[Math.floor(Math.random()*personalnames.postfix.length)];
+			name = name.charAt(0).toUpperCase() + name.substr(1);
+			name = personalnames.pretitle[Math.floor(Math.random()*personalnames.pretitle.length)]+personalnames.title[Math.floor(Math.random()*personalnames.title.length)]+name;
+			
+			if (depth < 2) {
+				if(Math.random() < 0.35) name += " de " + genLandName(depth + 1);
+				else if(Math.random() < 0.35) name += " from " + genSquadName(depth + 1);
+			}
+			return toTitleCase(name);
 		}
 
 		squadnames={pretitle:[],title:[],owner:[]}
 		squadnames.pretitle.push("Brave ","Strong ", "Restless ", "Wounded ", "Weak ", "Friendly ", "Good ", "Bad ", "Bloodthirsty ", "Lucky ", "Misunderstood ", "Hellish ", "Heavenly ", "Godless ", "Fearless ", "Black ", "White ", "Bloody ", "Free ","Unlucky ","Great ","Big ","Once-dead ","Christian ","Pagan ","Greedy ","Fat ","Sick ", "Broken ", "Filthy ","");
 		squadnames.title.push("Friends ","Peoples ","Peasants ","Foes ","Soldiers ","Champions ", "Conquerers ", "Knights ", "Rogues ", "Robbers ", "Combatants ","Campaign ","Army ","Squad ", "Adventurers ", "Warriors ", "Monks ","Prayers ","Brotherhood ","Brothers ","Sons ","Daughters ","Sisters ");
 		squadnames.owner.push("God","Heaven","Hell","Devil","Freedom","Law","Justice", "Injustice", "Church", "Temple", "Christ", "Horizon", "Sea", "Gea", "Zeus", "Odin", "Fortuna", "Winter","Summer","Fall","Spring","Music", "Roma", "North", "South","West","East")
-		function genSquadName(){
-			var name=squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]+squadnames.title[Math.floor(Math.random()*squadnames.title.length)]
-			if(Math.random()<0.5){
-				name+="of "+squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]
+		
+		function genSquadName(depth = 0){
+			var name = squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]+squadnames.title[Math.floor(Math.random()*squadnames.title.length)];
+			
+			if (depth < 2) {
+				let roll = Math.random();
+				if(roll < 0.33) name += " of " + squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)];
+				else if(roll < 0.66) name += " of " + genPersonalName(depth + 1);
+				
+				if(Math.random() < 0.3) name += " de " + genLandName(depth + 1);
 			}
-			return name.trim();
+			return toTitleCase(name);
 		}
 
-		// Logging Logic
+		// PROCEDURAL VOCABULARY ARRAYS
+		howword=["easy ","heavy ","hard ","free ", "bloody ","lawfull ","chaotic ","dangerous ","peaceful ","doomed ","unknown ",""];
+		how1=["successfully ", "lawfully ","had shown their @pretitle when they ","had shown their love to @owner when they ","kidnapped @person just before they ", ""];
+		how2=["with @word casualties", "by paying @word price","without any honor","by having @word adventure","now and for all","with help @word of @squad",", dooming the @pretitle@title of @land"," and cleared the @land from @squad", ""];
+		
+		actions={move:[],conquer:[],kill:[],die:[],damage:[],buy:[]}
+		actions.move.push("@who @how1 moved to @what, @how2","@who @how2 @how1 had finished their trip to @what","it had taken not much time for @who to reach the @what","@leader @how1 leaded his @who to @what");
+		actions.conquer.push("@leader claimed his rights on @what, with @word help of his @who","@pretitle@title of @what is now in @word hands of @leader, thanks to @who","@who now @word judgeing the @pretitle@title of @what","attack on @land of @who finished in @word conquest, @how2");
+		actions.kill.push("@what is now @word dead @how2 by @who","@who @how1 finished the lives of @what @how2, by will of @leader");
+		actions.die.push("@who @how1 ended their lives in hands of @what @how2","most of @leader's @who @how1 deserted @how2 by seeing the @what @word power");
+		actions.damage.push("@who @how1 damaged the @what, @how2","raid of @who, @how1 leaded by @leader, ended in @word damage to @what @how2","attack of @leader with his @who @how1 had no result except @word damage to @what, @how2");
+		actions.buy.push("@leader hired @who @how2", "@who @how1 signed a bloody contract with @leader @how2");
+
+		// TEXT GENERATOR ENGINE
+		function genJournalText(actionList, whoName, whatName, leaderName) {
+			let str = actionList[Math.floor(Math.random() * actionList.length)];
+			
+			let iterations = 0;
+			while (str.match(/@[a-z0-9]+/i) && iterations < 10) {
+				str = str.replace(/@word/g, () => howword[Math.floor(Math.random()*howword.length)]);
+				str = str.replace(/@how1/g, () => how1[Math.floor(Math.random()*how1.length)]);
+				str = str.replace(/@how2/g, () => how2[Math.floor(Math.random()*how2.length)]);
+				str = str.replace(/@pretitle/g, () => squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)].toLowerCase());
+				str = str.replace(/@title/g, () => squadnames.title[Math.floor(Math.random()*squadnames.title.length)].toLowerCase());
+				str = str.replace(/@squad/g, () => genSquadName());
+				str = str.replace(/@land/g, () => genLandName());
+				str = str.replace(/@owner/g, () => squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]);
+				str = str.replace(/@person/g, () => genPersonalName());
+				
+				str = str.replace(/@who/g, "<b>" + whoName + "</b>");
+				str = str.replace(/@what/g, "<i>" + whatName + "</i>");
+				str = str.replace(/@leader/g, "<span class='leader'>" + leaderName + "</span>");
+				iterations++;
+			}
+			
+			str = str.replace(/\s+/g, ' ').replace(/\s+,/g, ',').trim();
+			str = str.charAt(0).toUpperCase() + str.slice(1);
+			return str;
+		}
+
+		// LOGGING
 		function logToChronicles(text) {
 			let c = document.getElementById("chronicles");
-			c.innerHTML += text;
+			c.innerHTML += `<div class="chronicle-entry">${text}</div>`;
 			c.scrollTop = c.scrollHeight;
 		}
 
@@ -145,23 +323,24 @@
 				if(targett.type=="castle"&&parent.firstElementChild==targett){
 					if(!confirm("Conquer castle?")) return "mek";
 					currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> breached the gates! <i>${targett.name}</i> and the lands of <i>${parent.name}</i> fall to <b>${currentplayer.name}</b>.</div>`);
+					logToChronicles(genJournalText(actions.conquer, caller.name, parent.name, bestOfficer));
 					conquer(currentplayer, parent); caller.remove(); targett.classList.add("inactive"); return;
 				}
 				currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-				logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b>'s spearmen (<i>${caller.name}</i>) impaled <i>${targett.name}</i> in <i>${parent.name}</i>.</div>`);
+				logToChronicles(genJournalText(actions.kill, caller.name, targett.name, bestOfficer));
 				targett.remove();
 				if(parent.lastElementChild==null){
 					parent.appendChild(caller); conquer(currentplayer, parent);
-					logToChronicles(`<div class="chronicle-entry">Following the massacre, <b>${bestOfficer}</b> claimed <i>${parent.name}</i> for <b>${currentplayer.name}</b>.</div>`);
+					logToChronicles(genJournalText(actions.conquer, caller.name, parent.name, bestOfficer));
 				}
 			} else {
 				if(targett.power*protectionModifier>caller.power){
 					if(!confirm("Suicidal attack!")) return "mek";
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> ordered a doomed spear assault. <i>${caller.name}</i> was shattered against <i>${targett.name}</i> in <i>${parent.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
 					parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2; caller.remove();
 				} else {
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> engaged in a bloody stalemate! Both <i>${caller.name}</i> and <i>${targett.name}</i> were annihilated in <i>${parent.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
+					logToChronicles(genJournalText(actions.kill, targett.name, caller.name, targett.officer || parent.owner.name));
 					currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
 					parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2;
 					targett.remove(); caller.remove();
@@ -176,20 +355,21 @@
 				if(targett.type=="castle"&&parent.firstElementChild==targett){
 					if(!confirm("Conquer castle?")) return "mek";
 					currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b>'s gunfire forced the surrender of <i>${targett.name}</i>! <i>${parent.name}</i> is captured by <b>${currentplayer.name}</b>.</div>`);
+					logToChronicles(genJournalText(actions.conquer, caller.name, parent.name, bestOfficer));
 					conquer(currentplayer, parent); caller.remove(); targett.classList.add("inactive"); return;
 				}
 				currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-				logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> commanded devastating volleys from <i>${caller.name}</i>, destroying <i>${targett.name}</i> in <i>${parent.name}</i>.</div>`);
+				logToChronicles(genJournalText(actions.kill, caller.name, targett.name, bestOfficer));
 				targett.remove();
 			} else {
 				if(targett.power*protectionModifier>caller.power){
 					if(!confirm("Suicidal attack!")) return "mek";
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> led a foolish gun advance. <i>${caller.name}</i> dealt minor damage before being wiped out by <i>${targett.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.damage, caller.name, targett.name, bestOfficer));
+					logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
 					parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2;
 					targett.tempPower-=caller.power/protectionModifier; caller.remove();
 				} else {
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b>'s gunners engaged in a fierce firefight, ending in mutual destruction with <i>${targett.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
 					currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
 					parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2;
 					targett.remove(); caller.remove();
@@ -200,7 +380,6 @@
 		function lanceAttack(caller, target, bestOfficer){
 			var parent = target.parentElement;
 			var targett=parent.lastElementChild;
-			var initialLog = false;
 			while(true){
 				var currProtMod=0;
 				if(targett.type=="castle"||targett.type=="lance"){currProtMod=protectionModifier} else if(protectionModifier>=1){currProtMod=1};
@@ -208,26 +387,23 @@
 				if(targett.power*currProtMod<caller.power||targett.tempPower*currProtMod<caller.power || targett.undefending==true) {
 					if(targett.type=="castle"&&parent.firstElementChild==targett){
 						if(!confirm("Conquer castle?")) return "mek";
-						if(!initialLog) { logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> unleashed a heavy lance charge from <i>${caller.name}</i> into <i>${parent.name}</i>!</div>`); initialLog=true; }
 						currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-						logToChronicles(`<div class="chronicle-entry">The lancers overran <i>${targett.name}</i>, securing <i>${parent.name}</i> for <b>${currentplayer.name}</b>.</div>`);
+						logToChronicles(genJournalText(actions.conquer, caller.name, parent.name, bestOfficer));
 						conquer(currentplayer, parent); caller.remove(); targett.classList.add("inactive"); return;
 					}
-					if(!initialLog) { logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> unleashed a heavy lance charge from <i>${caller.name}</i> into <i>${parent.name}</i>!</div>`); initialLog=true; }
 					currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
-					logToChronicles(`<div class="chronicle-entry"><i>${targett.name}</i> was trampled by the charge!</div>`);
+					logToChronicles(genJournalText(actions.kill, caller.name, targett.name, bestOfficer));
 					targett.remove(); targett=parent.lastElementChild;
 					if(parent.lastElementChild==null){break;}
 				} else {
-					if(!initialLog) { logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> unleashed a heavy lance charge from <i>${caller.name}</i> into <i>${parent.name}</i>!</div>`); initialLog=true; }
 					if(targett.power*currProtMod>caller.power){
 						parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2;
-						logToChronicles(`<div class="chronicle-entry">The lance charge of <i>${caller.name}</i> broke against <i>${targett.name}</i>.</div>`);
+						logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
 						caller.remove(); break;
 					} else {
 						currentplayer.score+=targett.power; nextTurnCoins+=targett.power;
 						parent.owner.score+=caller.power*2; parent.owner.coins+=caller.power*2;
-						logToChronicles(`<div class="chronicle-entry"><i>${caller.name}</i> and <i>${targett.name}</i> clashed and annihilated each other.</div>`);
+						logToChronicles(genJournalText(actions.die, caller.name, targett.name, bestOfficer));
 						targett.remove(); caller.remove(); break;
 					}
 				}
@@ -238,11 +414,11 @@
 			var parent = target.parentElement;
 			var targett=parent.lastElementChild;
 			if(targett.power*protectionModifier<=caller.power||targett.tempPower*protectionModifier<caller.power || targett.undefending==true) {
-				logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> ordered an artillery barrage! <i>${caller.name}</i> blasted <i>${targett.name}</i> to smithereens in <i>${parent.name}</i>.</div>`);
+				logToChronicles(genJournalText(actions.kill, caller.name, targett.name, bestOfficer));
 				currentplayer.score+=targett.power; nextTurnCoins+=targett.power; targett.remove();
 			} else {
 				if(targett.power*protectionModifier>caller.power){
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> bombarded <i>${parent.name}</i>. <i>${caller.name}</i> inflicted heavy damage on <i>${targett.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.damage, caller.name, targett.name, bestOfficer));
 					targett.tempPower-=caller.power;
 				}
 			}
@@ -252,23 +428,31 @@
 			var parent = target.parentElement;
 			var targett=parent.lastElementChild;
 			if(targett.power*protectionModifier<=caller.power/2||targett.tempPower*protectionModifier<caller.power/2 || targett.undefending==true) {
-				logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> launched a siege attack from <i>${caller.name}</i>, devastating <i>${targett.name}</i> in <i>${parent.name}</i>.</div>`);
+				logToChronicles(genJournalText(actions.kill, caller.name, targett.name, bestOfficer));
 				currentplayer.score+=targett.power; nextTurnCoins+=targett.power; targett.remove();
 			} else {
 				if(targett.power*protectionModifier>caller.power/2){
-					logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> directed defensive fire from <i>${caller.name}</i>, wounding <i>${targett.name}</i> in <i>${parent.name}</i>.</div>`);
+					logToChronicles(genJournalText(actions.damage, caller.name, targett.name, bestOfficer));
 					targett.tempPower-=(caller.power/2);
 				}
 			}
 		}
 
-		function doNothing(){console.log("nthing"); PlayerPanelUpdate(); return null;};
-
 		function conquer(byWhom,what){
-			what.className=what.type+" "+what.type+what.power+' '+byWhom.name;
+			what.className="land "+what.type+what.power+' '+byWhom.name;
 			what.owner=byWhom;
-			if(byWhom==player1){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)"};
-			if(byWhom==player2){what.style.background=what.style.background.split(",")[0]; what.style.background+=",linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)"};
+			
+			// Top layer: The semi-transparent PNG image. Bottom layer: The faction flag gradient.
+			let imgUrl = "url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/land" + what.power + ".png')";
+			
+			if(byWhom==player1){
+				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
+				what.style.borderColor = "blue";
+			}
+			if(byWhom==player2){
+				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
+				what.style.borderColor = "red";
+			}
 			PlayerPanelUpdate();
 		}
 
@@ -279,8 +463,7 @@
 		}
 
 		function createCard(type,power){
-			var crd={};
-			if(type=="land"){crd=document.createElement("div")}else{crd= document.createElement("img")};
+			var crd = document.createElement("div");
 			
 			crd.power=power;
 			crd.type=type;
@@ -289,16 +472,18 @@
 			
 			if(type!="land"){
 				crd.tempPower=power; crd.classList.add("card");
+				crd.style.backgroundImage = "url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/"+type+power+".png')";
 				crd.oncontextmenu=function(e){ e.preventDefault(); currCardInfo(crd); return false; };
 				switch(type){
-					case "spear": crd.do=spearAttack; crd.info="kills card which temppower less than 1/3 of spear power, dies and kills if equal. if card was last on its land -- moves to and conquers land of a card"; break;
-					case "gun": crd.do=gunAttack; crd.info="kills card which temppower less than 1/3 of gun power, dies and kills if equal. deals 1/3 of gun power as damage to a card ";break;
-					case "lance": crd.do=lanceAttack; crd.info="kills cards in a land one by one(from last to first) that is not a lance or castle which temppower less than lance power, dies and kills if equal. kills lances which temppower is less than 1/3 of this lance power";break;
-					case "canon": crd.do=canonAttack; crd.info="kills card which temppower less than or equal to 1/3 of canon power. deals  canon power as damage to a card. get killed by any attack "; crd.undefending=true; break;
-					case "castle": crd.do=castleAttack; crd.info="kills card which temppower less than or equal to 1/6 of castle power. deals 1/2 of castle power as damage to a card. when it should be killed and its the last card on a land -- instead gets conquered(except by attacks of other castles and canons). insted of moving and conquering the empty land -- just conquering. cant move";break;
+					case "spear": crd.do=spearAttack; crd.info="Kills card which temppower less than 1/3 of spear power, dies and kills if equal. If card was last on its land -- moves to and conquers land."; break;
+					case "gun": crd.do=gunAttack; crd.info="Kills card which temppower less than 1/3 of gun power, dies and kills if equal. Deals 1/3 of gun power as damage to a card.";break;
+					case "lance": crd.do=lanceAttack; crd.info="Kills cards in a land one by one that is not a lance or castle which temppower less than lance power. Kills lances which temppower is less than 1/3 of this lance power.";break;
+					case "canon": crd.do=canonAttack; crd.info="Kills card which temppower less than or equal to 1/3 of canon power. Deals canon power as damage. Gets killed by any attack."; crd.undefending=true; break;
+					case "castle": crd.do=castleAttack; crd.info="Kills card which temppower less than or equal to 1/6 of castle power. Deals 1/2 of castle power as damage. When killed as last card -- instead gets conquered. Cannot move.";break;
 				}
 			} else {
 				crd.classList.add("land"); crd.owner=nomads;
+				crd.style.backgroundImage="url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/"+type+power+".png')";
 			}
 
 			function checkDistance(first,second){
@@ -316,9 +501,9 @@
 					return;
 				}
 				let displayName = card.name;
-				if (card.type !== "land") displayName += "<br/><span style='font-size: 15pt; color: #333;'>Led by: " + card.officer + "</span>";
+				if (card.type !== "land") displayName += "<br/><span style='font-size: 0.7em; color: #555;'>Led by: " + card.officer + "</span>";
 				
-				document.getElementById("cardName").innerHTML=card.type.toUpperCase() + " " + card.power + "<br/><span style='font-size:16pt;'>" + displayName + "</span>";
+				document.getElementById("cardName").innerHTML=card.type.toUpperCase() + " " + card.power + "<br/><span style='font-size: 0.8em;'>" + displayName + "</span>";
 				document.getElementById("cardInfo").innerHTML=card.info || "";
 				if(card.type != "land"){
 					document.getElementById("cardHP").innerHTML=card.tempPower.toFixed(1)+"/"+card.power;
@@ -345,7 +530,7 @@
 				if((this.type=="land") && (currentcard!=null)){
 					if(currentcard.parentElement==this){
 						let bestOfficer = getHighestOfficer(this, currentcard);
-						logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> redeployed <i>${currentcard.name}</i> to the vanguard in <i>${this.name}</i>.</div>`);
+						logToChronicles(genJournalText(actions.move, currentcard.name, this.name, bestOfficer));
 						this.appendChild(currentcard); cardDone(); updateTitles(); return;
 					}
 					if(currentcard.type!="castle"&&currentcard.parentElement.id!="shop"&&checkDistance(currentcard,this)&&this.childElementCount<this.power){
@@ -353,27 +538,28 @@
 						let bestOfficer = getHighestOfficer(srcLand, currentcard);
 
 						if(this.owner!=currentplayer&&this.lastElementChild==null){
-							logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> led <i>${currentcard.name}</i> to occupy the undefended lands of <i>${this.name}</i> for <b>${currentplayer.name}</b>.</div>`);
+							logToChronicles(genJournalText(actions.conquer, currentcard.name, this.name, bestOfficer));
 							conquer(currentplayer, this);
 							currentplayer.score+=this.power*protectionModifier;
 							nextTurnCoins+=this.power*protectionModifier;
 							this.appendChild(currentcard); cardDone(); updateTitles(); return;
 						}
 						if(this.owner==currentplayer){ 
-							logToChronicles(`<div class="chronicle-entry"><b>${bestOfficer}</b> marched <i>${currentcard.name}</i> into friendly territory: <i>${this.name}</i>.</div>`);
+							logToChronicles(genJournalText(actions.move, currentcard.name, this.name, bestOfficer));
 							this.appendChild(currentcard); cardDone(); return;
 						}
 					}
 					if(currentcard.type=="castle"&&currentcard.parentElement.id!="shop"&&checkDistance(currentcard,this)&&this.owner!=currentplayer&&this.lastElementChild==null){
 						let bestOfficer = getHighestOfficer(currentcard.parentElement, currentcard);
-						logToChronicles(`<div class="chronicle-entry">The garrison of <i>${currentcard.name}</i> under <b>${bestOfficer}</b> expanded their influence, claiming <i>${this.name}</i> for <b>${currentplayer.name}</b>.</div>`);
+						logToChronicles(genJournalText(actions.conquer, currentcard.name, this.name, bestOfficer));
 						conquer(currentplayer, this);
 						currentplayer.score+=this.power*protectionModifier;
 						nextTurnCoins+=this.power*protectionModifier;
 						cardDone(); updateTitles(); return;
 					}
 					if(currentcard.parentElement.id=="shop"&&this.childElementCount<this.power){
-						logToChronicles(`<div class="chronicle-entry"><b>${currentplayer.name}</b> recruited mercenaries: <i>${currentcard.name}</i> led by <b>${currentcard.officer}</b>, placing them in <i>${this.name}</i>.</div>`);
+						let playerLeaderTitle = "Lord " + currentplayer.name.replace("player", "Player ");
+						logToChronicles(genJournalText(actions.buy, currentcard.name, this.name, playerLeaderTitle));
 						this.appendChild(currentcard);
 						currentplayer.coins-=currentcard.power;
 						currentplayer.score-=currentcard.power/protectionModifier;
@@ -381,30 +567,24 @@
 					}
 				}
 			}
-
-			crd.src="https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/"+type+power+".png";
-			if(type=="land"){
-				crd.style.background="url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/"+type+power+".png')";
-				crd.style.backgroundSize="cover";
-			}
 			return crd;
 		};
 
 		function PlayerPanelUpdate(){
-			playerPanel.playerName.innerHTML=currentplayer.name;
+			playerPanel.playerName.innerHTML=currentplayer.name.replace("player", "Player ");
 			playerPanel.playerCoins.innerHTML=currentplayer.coins;
 			playerPanel.playerScore.innerHTML=currentplayer.score.toFixed(1);
 			playerPanel.nextTurnCoins.innerHTML=nextTurnCoins.toFixed(1);
 			if(currentplayer==player1){
-				document.documentElement.style.background="linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
+				document.body.style.backgroundImage="linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
 				playerPanel.style.background="blue";
-				nxtTurnButton.style.background="red"
+				nxtTurnButton.style.background="red";
 				playerPanel.playerName.style.color="blue"; playerPanel.playerScore.style.color="blue"; playerPanel.playerCoins.style.color="blue"; playerPanel.nextTurnCoins.style.color="blue";
 			}
 			if(currentplayer==player2){
-				document.documentElement.style.background="linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
+				document.body.style.backgroundImage="linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
 				playerPanel.style.background="red";
-				nxtTurnButton.style.background="blue"
+				nxtTurnButton.style.background="blue";
 				playerPanel.playerName.style.color="red"; playerPanel.playerScore.style.color="red"; playerPanel.playerCoins.style.color="red"; playerPanel.nextTurnCoins.style.color="red";
 			}
 		}
@@ -424,21 +604,25 @@
 					if(lands[i][j].owner==player2) Score2+=landscore+armyscore;
 				}
 			}
-			if(Score1>Score2){return "player1"};
-			if(Score1<Score2){return"player2"};
-			return "draw";
+			if(Score1>Score2){return "Player 1"};
+			if(Score1<Score2){return "Player 2"};
+			return "Draw";
 		}
 
 		function updateHP(card){
-			card.style.background="linear-gradient(0deg,black 0%, #0008 "+(100 - (card.tempPower/card.power)*100)+"%, #0000 "+(100 - (card.tempPower/card.power)*100+1)+"% )";
+			card.style.backgroundImage="linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) "+(100 - (card.tempPower/card.power)*100)+"%, transparent "+(100 - (card.tempPower/card.power)*100+1)+"% ), url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/"+card.type+card.power+".png')";
 		}
 
 		function nextTurn(){
-			if(noMovesTurns>=5){alert(WinnerIs()); document.location.reload()}
+			if(noMovesTurns>=5){alert(WinnerIs() + " is the winner!"); document.location.reload()}
 			noMovesTurns++;
 			countOf1=0; countOf2=0;
 
-			logToChronicles(`<div style="text-align:center; font-weight:bold; margin: 15pt 0; color:#5c3a21; border-bottom: 1px solid #8b4513;">--- ${currentplayer.name === "player1" ? "Player 2's Turn" : "Player 1's Turn"} ---</div>`);
+			let c = document.getElementById("chronicles");
+			if(c) {
+				c.innerHTML += `<div style="text-align:center; font-weight:bold; margin: 15px 0; color:#5c3a21; border-bottom: 2px solid #8b4513;">--- ${currentplayer.name === "player1" ? "Player 2" : "Player 1"}'s Turn ---</div>`;
+				c.scrollTop = c.scrollHeight;
+			}
 
 			for (var i = 0; i < lands.width ; i++) {
 				for (var j = 0; j < lands.height; j++) {
@@ -455,8 +639,8 @@
 				}
 			}
 			updateTitles();
-			if(countOf1==0){alert("player2 is winner"); document.location.reload()};
-			if(countOf2==0){alert("player1 is winner"); document.location.reload()}
+			if(countOf1==0){alert("Player 2 is winner!"); document.location.reload()};
+			if(countOf2==0){alert("Player 1 is winner!"); document.location.reload()}
 			
 			currentplayer.coins+=nextTurnCoins;
 			nextTurnCoins=0;
@@ -467,7 +651,7 @@
 		function updateTitles(){
 			for (var i = 0; i < lands.width ; i++) {
 				for (var j = 0; j < lands.height; j++) {
-					lands[i][j].title = lands[i][j].name + "\nland " + lands[i][j].childElementCount + "/" + lands[i][j].power + "\nownd by " + lands[i][j].owner.name;
+					lands[i][j].title = lands[i][j].name + "\nLand " + lands[i][j].childElementCount + "/" + lands[i][j].power + "\nOwned by " + lands[i][j].owner.name;
 					for(var t=0 ;t<lands[i][j].children.length;t++){
 						var crd = lands[i][j].children[t];
 						crd.title = crd.type + " " + crd.tempPower.toFixed(1) + "/" + crd.power + "\n" + (crd.officer ? "Led by " + crd.officer + "\n" : "") + crd.info + "\n" + lands[i][j].title;
@@ -495,6 +679,7 @@
 		landwidth=3; landheight=3;
 		lands={width:landwidth,height:landheight};
 	
+		// Grid Initialization
 		for (var i = 0; i < landwidth ; i++) {
 			lands[i]=[];
 			for (var j = 0; j < landheight; j++) {
@@ -505,49 +690,50 @@
 	</script>
 </head>
 <body>
-<div style="display: flex; flex-direction: row; min-width: 1500pt;">
+
+	<!-- Game Board Container -->
 	<div id="lands"></div>
 	
-	<div id="rightPanel" style="float:left; margin-left:10pt;">
+	<!-- Right Side Interactions -->
+	<div id="rightPanel">
 		<div id="playerPanel">
 			<div id="shop"></div>
 			<div id="nxtTurnButton" onclick="nextTurn()">NEXT TURN</div>
-			<div id="playerName" class="outp"></div>
-			<br/>
-			Coins:<div id="playerCoins" class="outp"></div>
-			<br/>
-			Score:<div id="playerScore" class="outp"></div>
-			<br/>
-			+Coins:<div id="nextTurnCoins" class="outp"></div>
+			
+			<div class="stats-grid">
+				<span>Commander:</span><div id="playerName" class="outp"></div>
+				<span>Treasury:</span><div id="playerCoins" class="outp"></div>
+				<span>Prestige:</span><div id="playerScore" class="outp"></div>
+				<span>Income (+):</span><div id="nextTurnCoins" class="outp"></div>
+			</div>
 		</div>
-		<br/>
-		<div id="currCardInfo" style="margin-top: 20pt; background: linear-gradient(135deg, white 0%,yellow 10%, lightyellow 15%, white 50%, lightyellow 100%); width: 250pt; padding: 10pt; border-radius: 5px; border: 3pt solid gold; display: inline-block;">
-			<div id="cardName" style="width:100%; font-size: 22pt; font-weight:bold; border-bottom:1px solid gold; margin-bottom:5px;"></div>
-			<div id="cardHP" style="width:100%; font-size: 18pt; color:red; font-weight:bold;"></div>
-			<div id="cardInfo" style="width:100%; font-size: 14pt; font-style: italic;"></div>
+
+		<div id="currCardInfo">
+			<div id="cardName">Select an Army</div>
+			<div id="cardHP"></div>
+			<div id="cardInfo">Right-click on any unit or land to view details.</div>
 		</div>
 	</div>
 
 	<!-- Chronicles Manuscript Panel -->
-	<div id="chroniclesWrapper" style="float: left; width: 350pt; height: 672pt; margin-left: 10pt; background: #fdf5e6; border: 4pt double #8b4513; border-radius: 5pt; box-sizing: border-box; display: flex; flex-direction: column; padding: 10pt; font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
-		<h2 style="text-align: center; margin: 0 0 10pt 0; color: #5c3a21; border-bottom: 2pt solid #8b4513; padding-bottom: 5pt;">The Chronicles</h2>
-		<div id="chronicles" style="flex: 1; overflow-y: auto; padding-right: 5pt;"></div>
+	<div id="chroniclesWrapper">
+		<h2>The Chronicles</h2>
+		<div id="chronicles"></div>
 	</div>
-</div>
 
 <script type="text/javascript">
  shop=document.getElementById("shop");
  shop.owner="shop";
  Lands=document.getElementById("lands");
  nxtTurnButton=document.getElementById("nxtTurnButton");
- currentplayer=player2; // Handled nicely by NextTurn
+ currentplayer=player2; // Let nextTurn() setup Player 1
  playerPanel=document.getElementById("playerPanel");
  playerPanel.playerName=document.getElementById("playerName");
  playerPanel.playerCoins=document.getElementById("playerCoins");
  playerPanel.playerScore=document.getElementById("playerScore");
  playerPanel.nextTurnCoins=document.getElementById("nextTurnCoins");
 
- // Updated initial state requested by the user: Cornerlands Level 3 Fortresses
+ // Initial starting Fortresses for players
  conquer(player1, lands[0][0]);
  lands[0][0].appendChild(createCard("castle", 30));
 
@@ -556,17 +742,15 @@
 
  popCardForShop(); popCardForShop(); popCardForShop();
 
- for (var i = 0; i < lands.width; i++) {
-	var temprow = document.createElement("div");
-	temprow.id=("row"+"0")+i;
-	temprow.classList.add("row");
-	for (var j = 0; j < landheight; j++) {
-		var templand=lands[i][j];
-		templand.id=("land"+i)+j;
-		temprow.appendChild(templand);
+ // Append items into CSS Grid (y first, then x, to match original mathematical positions)
+ for (var j = 0; j < lands.height; j++) {
+	for (var i = 0; i < lands.width; i++) {
+		var templand = lands[i][j];
+		templand.id = ("land"+i)+"_"+j;
+		Lands.appendChild(templand);
 	}
-	Lands.appendChild(temprow);
  }
+ 
  nextTurn();
  PlayerPanelUpdate();
 </script>
