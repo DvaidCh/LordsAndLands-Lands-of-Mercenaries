@@ -20,7 +20,7 @@
 			-webkit-user-select: none;
 		}
 
-		/* Game Board - Adaptive CSS Grid */
+		/* Game Board - Rigid Perfect Squares */
 		#lands {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
@@ -28,18 +28,19 @@
 			gap: 6px;
 			background: grey;
 			padding: 6px;
-			flex: 1 1 450px; /* Adapts to available space */
+			flex: 0 1 650px; /* Adapts to space but caps out */
+			width: 100%;
 			max-width: 800px;
-			aspect-ratio: 1; /* Keeps the board perfectly square */
+			aspect-ratio: 1 / 1; /* FORCES PERFECT SQUARE */
 			box-shadow: 0 0 15px rgba(0,0,0,0.7);
 			border-radius: 5px;
+			align-self: flex-start;
 		}
 
 		.land {
 			border: 4px double #444;
-			background-size: cover, cover; /* Covers both the image and the gradient layers */
+			background-size: cover, cover; /* Top layer: image, Bottom layer: faction flag */
 			background-position: center;
-			/* Strict 2x2 grid so cards take up exactly ~1/4 of the land each */
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
 			grid-template-rows: repeat(2, 1fr);
@@ -48,6 +49,7 @@
 			overflow: hidden;
 			position: relative;
 			transition: transform 0.1s;
+			aspect-ratio: 1 / 1; /* FORCES PERFECT SQUARE */
 		}
 
 		.card {
@@ -58,6 +60,7 @@
 			background-size: cover;
 			background-position: center;
 			transition: filter 0.2s;
+			aspect-ratio: 1 / 1; /* FORCES PERFECT SQUARE */
 		}
 		.card:hover { filter: brightness(1.2); }
 
@@ -82,7 +85,7 @@
 		}
 
 		#shop .card {
-			width: 65px; /* Fixed size in shop to keep UI clean */
+			width: 65px; 
 			height: 65px;
 			border: 3px groove gold;
 		}
@@ -109,10 +112,12 @@
 		.outp {
 			display: inline-block;
 			background: wheat;
-			padding: 2px 8px;
+			padding: 4px 8px;
 			border-radius: 3px;
-			font-size: 1.2em;
-			text-align: right;
+			font-size: 1.1em;
+			text-align: left;
+			color: #222;
+			line-height: 1.2;
 		}
 
 		#nxtTurnButton {
@@ -157,7 +162,7 @@
 			flex-direction: column;
 			padding: 10px;
 			box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
-			height: 90vh; /* Adapts vertically */
+			height: 90vh;
 			max-height: 800px;
 		}
 
@@ -181,12 +186,11 @@
 		.chronicle-entry i { color: #8b0000; font-weight: bold; font-style: normal; }
 		.chronicle-entry .leader { color: #4b0082; font-weight: bold; text-decoration: underline; }
 
-		/* Dynamics States */
 		.inactive { border: 3px outset gray; filter: grayscale(50%); }
-
 	</style>
 	<script type="text/javascript">
-		// Helper to format epic names naturally
+		var gameEnded = false;
+
 		function toTitleCase(str) {
 			return str.replace(/\w\S*/g, function(txt) {
 				let lower = txt.toLowerCase();
@@ -195,7 +199,6 @@
 			}).replace(/\s+/g, ' ').trim();
 		}
 
-		// EPIC NAME GENERATORS (With recursive depth!)
 		landnames={prename:[],prefix:[],name:[],midfix:[],postfix:[],postname:[]};
 		landnames.prename.push("Villa ","Duchy ", "Monte ", "Terra ","");
 		landnames.prefix.push("Los-","Des-","San-","Sain-","Casta-","Vila-","Monte-","Bel-","Nuo-","");
@@ -205,7 +208,6 @@
 		
 		function genLandName(depth = 0){
 			var name = landnames.prename[Math.floor(Math.random()*landnames.prename.length)]+landnames.prefix[Math.floor(Math.random()*landnames.prefix.length)]+landnames.name[Math.floor(Math.random()*landnames.name.length)]+landnames.midfix[Math.floor(Math.random()*landnames.midfix.length)]+landnames.postfix[Math.floor(Math.random()*landnames.postfix.length)];
-			
 			if (depth < 2) {
 				if(Math.random() < 0.3) name += " of " + genSquadName(depth + 1);
 				else if(Math.random() < 0.3) name += " of " + genPersonalName(depth + 1);
@@ -225,7 +227,6 @@
 			var name = personalnames.prefix[Math.floor(Math.random()*personalnames.prefix.length)]+personalnames.name[Math.floor(Math.random()*personalnames.name.length)]+ personalnames.midfix[Math.floor(Math.random()*personalnames.midfix.length)]+personalnames.postfix[Math.floor(Math.random()*personalnames.postfix.length)];
 			name = name.charAt(0).toUpperCase() + name.substr(1);
 			name = personalnames.pretitle[Math.floor(Math.random()*personalnames.pretitle.length)]+personalnames.title[Math.floor(Math.random()*personalnames.title.length)]+name;
-			
 			if (depth < 2) {
 				if(Math.random() < 0.35) name += " de " + genLandName(depth + 1);
 				else if(Math.random() < 0.35) name += " from " + genSquadName(depth + 1);
@@ -240,34 +241,29 @@
 		
 		function genSquadName(depth = 0){
 			var name = squadnames.pretitle[Math.floor(Math.random()*squadnames.pretitle.length)]+squadnames.title[Math.floor(Math.random()*squadnames.title.length)];
-			
 			if (depth < 2) {
 				let roll = Math.random();
 				if(roll < 0.33) name += " of " + squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)];
 				else if(roll < 0.66) name += " of " + genPersonalName(depth + 1);
-				
 				if(Math.random() < 0.3) name += " de " + genLandName(depth + 1);
 			}
 			return toTitleCase(name);
 		}
 
-		// PROCEDURAL VOCABULARY ARRAYS
-		howword=["easy ","heavy ","hard ","free ", "bloody ","lawfull ","chaotic ","dangerous ","peaceful ","doomed ","unknown ",""];
+		howword=["easy ","heavy ","hard ","free ", "bloody ","lawful ","chaotic ","dangerous ","peaceful ","doomed ","unknown ",""];
 		how1=["successfully ", "lawfully ","had shown their @pretitle when they ","had shown their love to @owner when they ","kidnapped @person just before they ", ""];
 		how2=["with @word casualties", "by paying @word price","without any honor","by having @word adventure","now and for all","with help @word of @squad",", dooming the @pretitle@title of @land"," and cleared the @land from @squad", ""];
 		
 		actions={move:[],conquer:[],kill:[],die:[],damage:[],buy:[]}
 		actions.move.push("@who @how1 moved to @what, @how2","@who @how2 @how1 had finished their trip to @what","it had taken not much time for @who to reach the @what","@leader @how1 leaded his @who to @what");
-		actions.conquer.push("@leader claimed his rights on @what, with @word help of his @who","@pretitle@title of @what is now in @word hands of @leader, thanks to @who","@who now @word judgeing the @pretitle@title of @what","attack on @land of @who finished in @word conquest, @how2");
+		actions.conquer.push("@leader claimed his rights on @what, with @word help of his @who","@pretitle@title of @what is now in @word hands of @leader, thanks to @who","@who now @word judging the @pretitle@title of @what","attack on @land of @who finished in @word conquest, @how2");
 		actions.kill.push("@what is now @word dead @how2 by @who","@who @how1 finished the lives of @what @how2, by will of @leader");
 		actions.die.push("@who @how1 ended their lives in hands of @what @how2","most of @leader's @who @how1 deserted @how2 by seeing the @what @word power");
 		actions.damage.push("@who @how1 damaged the @what, @how2","raid of @who, @how1 leaded by @leader, ended in @word damage to @what @how2","attack of @leader with his @who @how1 had no result except @word damage to @what, @how2");
-		actions.buy.push("@leader hired @who @how2", "@who @how1 signed a bloody contract with @leader @how2");
+		actions.buy.push("@leader hired @who @how2", "@who @how1 signed a bloody contract with @leader @how2", "@leader integrated @who into the ranks @how2");
 
-		// TEXT GENERATOR ENGINE
 		function genJournalText(actionList, whoName, whatName, leaderName) {
 			let str = actionList[Math.floor(Math.random() * actionList.length)];
-			
 			let iterations = 0;
 			while (str.match(/@[a-z0-9]+/i) && iterations < 10) {
 				str = str.replace(/@word/g, () => howword[Math.floor(Math.random()*howword.length)]);
@@ -279,23 +275,40 @@
 				str = str.replace(/@land/g, () => genLandName());
 				str = str.replace(/@owner/g, () => squadnames.owner[Math.floor(Math.random()*squadnames.owner.length)]);
 				str = str.replace(/@person/g, () => genPersonalName());
-				
 				str = str.replace(/@who/g, "<b>" + whoName + "</b>");
 				str = str.replace(/@what/g, "<i>" + whatName + "</i>");
 				str = str.replace(/@leader/g, "<span class='leader'>" + leaderName + "</span>");
 				iterations++;
 			}
-			
 			str = str.replace(/\s+/g, ' ').replace(/\s+,/g, ',').trim();
 			str = str.charAt(0).toUpperCase() + str.slice(1);
 			return str;
 		}
 
-		// LOGGING
 		function logToChronicles(text) {
 			let c = document.getElementById("chronicles");
 			c.innerHTML += `<div class="chronicle-entry">${text}</div>`;
 			c.scrollTop = c.scrollHeight;
+		}
+
+		function declareGameEnd(winnerStr) {
+			gameEnded = true;
+			let c = document.getElementById("chronicles");
+			let endHtml = `
+				<div style="text-align:center; font-size: 1.5em; color: darkred; margin-top: 25px; border-top: 3px double darkred; padding-top: 15px;">
+					<b>The War has Ended!</b><br/><span style="font-size: 0.8em;">${winnerStr}</span>
+				</div>
+				<div style="text-align:center; margin-top: 20px; margin-bottom: 20px;">
+					<button onclick="location.reload()" style="padding: 12px 24px; font-size: 1.2em; cursor: pointer; background: gold; border: 3px solid #8b4513; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">Restart Game</button>
+				</div>
+			`;
+			c.innerHTML += endHtml;
+			c.scrollTop = c.scrollHeight;
+			
+			// Disable next turn button
+			let btn = document.getElementById("nxtTurnButton");
+			btn.style.pointerEvents = "none";
+			btn.style.filter = "grayscale(100%)";
 		}
 
 		function getHighestOfficer(land, defaultCard) {
@@ -439,18 +452,18 @@
 		}
 
 		function conquer(byWhom,what){
-			what.className="land "+what.type+what.power+' '+byWhom.name;
+			what.className="land "+what.type+what.power+' faction-'+byWhom.id;
 			what.owner=byWhom;
 			
-			// Top layer: The semi-transparent PNG image. Bottom layer: The faction flag gradient.
+			// Top layer: The transparent PNG image. Bottom layer: The faction flag gradient.
 			let imgUrl = "url('https://raw.githubusercontent.com/DvaidCh/LordsAndLands-Lands-of-Mercenaries/main/land" + what.power + ".png')";
 			
-			if(byWhom==player1){
-				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
+			if(byWhom.id == "player1"){
+				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg, rgba(0,0,255,0.4) 0%, rgba(135,206,235,0.4) 100%)";
 				what.style.borderColor = "blue";
 			}
-			if(byWhom==player2){
-				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
+			if(byWhom.id == "player2"){
+				what.style.backgroundImage = imgUrl + ", linear-gradient(45deg, rgba(120,40,31,0.5) 0%, rgba(236,112,99,0.5) 100%)";
 				what.style.borderColor = "red";
 			}
 			PlayerPanelUpdate();
@@ -513,14 +526,15 @@
 			}
 
 			crd.onclick=function(event){
+				if(gameEnded) return;
 				if(event) event.cancelBubble=true; else window.event.cancelBubble=true;
 				noMovesTurns=0;
 				
 				if(this.type!="land"){
-					if((this.parentElement.className.includes(currentplayer.name)&&!this.className.includes("inactive")) || (this.parentElement.id=="shop"&&currentplayer.coins>=this.power)){
+					if((this.parentElement.className.includes('faction-'+currentplayer.id) && !this.className.includes("inactive")) || (this.parentElement.id=="shop"&&currentplayer.coins>=this.power)){
 						currentcard = this; updateTitles(); currCardInfo(currentcard); return;
 					};  
-					if(currentcard!=null && !this.parentElement.className.includes(currentplayer.name) && currentcard.parentElement.id!="shop" && checkDistance(currentcard,this)){
+					if(currentcard!=null && !this.parentElement.className.includes('faction-'+currentplayer.id) && currentcard.parentElement.id!="shop" && checkDistance(currentcard,this)){
 						let bestOfficer = getHighestOfficer(currentcard.parentElement, currentcard);
 						if(currentcard.do(currentcard,this, bestOfficer)=="mek") return;
 						cardDone(); updateTitles(); return;
@@ -558,8 +572,10 @@
 						cardDone(); updateTitles(); return;
 					}
 					if(currentcard.parentElement.id=="shop"&&this.childElementCount<this.power){
-						let playerLeaderTitle = "Lord " + currentplayer.name.replace("player", "Player ");
-						logToChronicles(genJournalText(actions.buy, currentcard.name, this.name, playerLeaderTitle));
+						// IMPORTANT FIX: Scan the TARGET land for the strongest officer to do the hiring!
+						let bestOfficer = getHighestOfficer(this, {officer: currentplayer.name});
+						logToChronicles(genJournalText(actions.buy, currentcard.name, this.name, bestOfficer));
+						
 						this.appendChild(currentcard);
 						currentplayer.coins-=currentcard.power;
 						currentplayer.score-=currentcard.power/protectionModifier;
@@ -571,21 +587,25 @@
 		};
 
 		function PlayerPanelUpdate(){
-			playerPanel.playerName.innerHTML=currentplayer.name.replace("player", "Player ");
+			// Display the UI text with P1/P2 prefix for clarity
+			let prefix = currentplayer.id === "player1" ? "[P1] " : "[P2] ";
+			playerPanel.playerName.innerHTML= prefix + currentplayer.name;
+			
 			playerPanel.playerCoins.innerHTML=currentplayer.coins;
 			playerPanel.playerScore.innerHTML=currentplayer.score.toFixed(1);
 			playerPanel.nextTurnCoins.innerHTML=nextTurnCoins.toFixed(1);
+			
 			if(currentplayer==player1){
 				document.body.style.backgroundImage="linear-gradient(45deg,blue 0%,skyblue 25%,blue 45%,skyblue 70%,blue 90%,skyblue 95%,blue 100%)";
 				playerPanel.style.background="blue";
 				nxtTurnButton.style.background="red";
-				playerPanel.playerName.style.color="blue"; playerPanel.playerScore.style.color="blue"; playerPanel.playerCoins.style.color="blue"; playerPanel.nextTurnCoins.style.color="blue";
+				playerPanel.playerName.style.color="white"; playerPanel.playerScore.style.color="blue"; playerPanel.playerCoins.style.color="blue"; playerPanel.nextTurnCoins.style.color="blue";
 			}
 			if(currentplayer==player2){
 				document.body.style.backgroundImage="linear-gradient(45deg,#78281F 0%,#EC7063 25%,#78281F 45%,#EC7063 70%,#78281F 90%,#EC7063 95%,#78281F 100%)";
 				playerPanel.style.background="red";
 				nxtTurnButton.style.background="blue";
-				playerPanel.playerName.style.color="red"; playerPanel.playerScore.style.color="red"; playerPanel.playerCoins.style.color="red"; playerPanel.nextTurnCoins.style.color="red";
+				playerPanel.playerName.style.color="white"; playerPanel.playerScore.style.color="red"; playerPanel.playerCoins.style.color="red"; playerPanel.nextTurnCoins.style.color="red";
 			}
 		}
 
@@ -604,8 +624,8 @@
 					if(lands[i][j].owner==player2) Score2+=landscore+armyscore;
 				}
 			}
-			if(Score1>Score2){return "Player 1"};
-			if(Score1<Score2){return "Player 2"};
+			if(Score1>Score2){return player1};
+			if(Score1<Score2){return player2};
 			return "Draw";
 		}
 
@@ -614,13 +634,22 @@
 		}
 
 		function nextTurn(){
-			if(noMovesTurns>=5){alert(WinnerIs() + " is the winner!"); document.location.reload()}
+			if(gameEnded) return;
+			
+			if(noMovesTurns>=5){
+				let winner = WinnerIs();
+				let winnerStr = (winner === "Draw") ? "The War ends in a stalemate." : winner.name + " stands victorious over the ashes!";
+				declareGameEnd(winnerStr);
+				return;
+			}
 			noMovesTurns++;
 			countOf1=0; countOf2=0;
 
 			let c = document.getElementById("chronicles");
 			if(c) {
-				c.innerHTML += `<div style="text-align:center; font-weight:bold; margin: 15px 0; color:#5c3a21; border-bottom: 2px solid #8b4513;">--- ${currentplayer.name === "player1" ? "Player 2" : "Player 1"}'s Turn ---</div>`;
+				let nextId = currentplayer.id === "player1" ? "Player 2" : "Player 1";
+				let nextName = currentplayer.id === "player1" ? player2.name : player1.name;
+				c.innerHTML += `<div style="text-align:center; font-weight:bold; margin: 15px 0; color:#5c3a21; border-bottom: 2px solid #8b4513;">--- Turn of ${nextId} ---<br/><span style="font-size: 0.8em;">${nextName}</span></div>`;
 				c.scrollTop = c.scrollHeight;
 			}
 
@@ -639,8 +668,9 @@
 				}
 			}
 			updateTitles();
-			if(countOf1==0){alert("Player 2 is winner!"); document.location.reload()};
-			if(countOf2==0){alert("Player 1 is winner!"); document.location.reload()}
+			
+			if(countOf1==0){ declareGameEnd(player2.name + " has conquered the entire realm!"); return; }
+			if(countOf2==0){ declareGameEnd(player1.name + " has conquered the entire realm!"); return; }
 			
 			currentplayer.coins+=nextTurnCoins;
 			nextTurnCoins=0;
@@ -665,9 +695,10 @@
 		function randomsort(first,second){if(Math.random()>0.5)return 1;return -1};
 
 		startcoins=0;
-		player1={score:0,coins:startcoins, name:"player1"};
-		player2={score:0,coins:startcoins, name:"player2"};
-		nomads={score:0,coins:0,name:"nomads"}
+		// Initialize the players with Epic Names!
+		player1={id: "player1", score:0, coins:startcoins, name: "Supreme Lord " + genPersonalName(0)};
+		player2={id: "player2", score:0, coins:startcoins, name: "Supreme Lord " + genPersonalName(0)};
+		nomads={id: "nomads", score:0, coins:0, name:"nomads"}
 		nextTurnCoins=0;
 		
 		cardstack=[createCard("canon",5),createCard("canon",10),createCard("canon",15),createCard("canon",25),createCard("castle",10),createCard("castle",20),createCard("castle",30),createCard("gun",1),createCard("gun",2),createCard("gun",3),createCard("gun",5),createCard("lance",1),createCard("lance",2),createCard("lance",3),createCard("lance",5),createCard("spear",1),createCard("spear",2),createCard("spear",3),createCard("spear",5)];
@@ -679,7 +710,6 @@
 		landwidth=3; landheight=3;
 		lands={width:landwidth,height:landheight};
 	
-		// Grid Initialization
 		for (var i = 0; i < landwidth ; i++) {
 			lands[i]=[];
 			for (var j = 0; j < landheight; j++) {
@@ -691,10 +721,8 @@
 </head>
 <body>
 
-	<!-- Game Board Container -->
 	<div id="lands"></div>
 	
-	<!-- Right Side Interactions -->
 	<div id="rightPanel">
 		<div id="playerPanel">
 			<div id="shop"></div>
@@ -715,7 +743,6 @@
 		</div>
 	</div>
 
-	<!-- Chronicles Manuscript Panel -->
 	<div id="chroniclesWrapper">
 		<h2>The Chronicles</h2>
 		<div id="chronicles"></div>
@@ -726,14 +753,13 @@
  shop.owner="shop";
  Lands=document.getElementById("lands");
  nxtTurnButton=document.getElementById("nxtTurnButton");
- currentplayer=player2; // Let nextTurn() setup Player 1
+ currentplayer=player2; // Let nextTurn() setup Player 1 on init
  playerPanel=document.getElementById("playerPanel");
  playerPanel.playerName=document.getElementById("playerName");
  playerPanel.playerCoins=document.getElementById("playerCoins");
  playerPanel.playerScore=document.getElementById("playerScore");
  playerPanel.nextTurnCoins=document.getElementById("nextTurnCoins");
 
- // Initial starting Fortresses for players
  conquer(player1, lands[0][0]);
  lands[0][0].appendChild(createCard("castle", 30));
 
@@ -742,7 +768,6 @@
 
  popCardForShop(); popCardForShop(); popCardForShop();
 
- // Append items into CSS Grid (y first, then x, to match original mathematical positions)
  for (var j = 0; j < lands.height; j++) {
 	for (var i = 0; i < lands.width; i++) {
 		var templand = lands[i][j];
